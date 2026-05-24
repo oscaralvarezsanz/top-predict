@@ -164,6 +164,12 @@
 								<immutableModels>true</immutableModels>
 								<additionalModelTypeAnnotations>@lombok.Builder @lombok.Data @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 							</configOptions>
+							<typeMappings>
+								<typeMapping>DateTime=LocalDateTime</typeMapping>
+							</typeMappings>
+							<importMappings>
+								<importMapping>LocalDateTime=java.time.LocalDateTime</importMapping>
+							</importMappings>
 						</configuration>
 					</execution>
 				</executions>
