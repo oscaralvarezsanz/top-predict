@@ -9,7 +9,7 @@ public class GroupMember {
     private final Integer id;
     private final Integer groupId;
     private final Integer userId;
-    private final String username;
+    private final String alias;
     @Builder.Default
     private final Integer totalPoints = 0;
 }
