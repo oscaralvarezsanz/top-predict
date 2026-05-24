@@ -162,7 +162,7 @@
 								<useJakartaEe>true</useJakartaEe>
 								<modelPropertyNaming>camelCase</modelPropertyNaming>
 								<immutableModels>true</immutableModels>
-								<additionalModelTypeAnnotations>@lombok.Builder @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<additionalModelTypeAnnotations>@lombok.Builder @lombok.Data @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
 							</configOptions>
 						</configuration>
 					</execution>
