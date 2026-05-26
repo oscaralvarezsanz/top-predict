@@ -1,12 +1,16 @@
 package com.topleague.predict.infrastructure.in.controller;
 
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
+import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
 import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Group;
+import com.topleague.predict.domain.model.GroupLeaderboard;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
 import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
+import com.topleague.predict.infrastructure.in.mapper.LeaderboardWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
+import com.topleague.predict.infrastructure.in.model.WebLeaderboardResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +29,10 @@ class GroupControllerTest {
     private static final String USERNAME = "john_doe";
 
     private final CreateGroupUseCase createUseCase = mock(CreateGroupUseCase.class);
+    private final GetGroupLeaderboardUseCase getGroupLeaderboardUseCase = mock(GetGroupLeaderboardUseCase.class);
     private final GroupWebConverter converter = mock(GroupWebConverter.class);
-    private final GroupController controller = new GroupController(createUseCase, converter);
+    private final LeaderboardWebConverter leaderboardConverter = mock(LeaderboardWebConverter.class);
+    private final GroupController controller = new GroupController(createUseCase, getGroupLeaderboardUseCase, converter, leaderboardConverter);
 
     @BeforeEach
     void setup() {
@@ -61,5 +67,29 @@ class GroupControllerTest {
         verify(converter).toDomain(webRequest);
         verify(createUseCase).createGroup(groupWithOwner, USERNAME);
         verify(converter).toWebResponse(createdGroup);
+    }
+
+    @Test
+    void getGroupLeaderboardShouldReturn200OkWithLeaderboard() {
+        Integer groupId = 10;
+        GroupLeaderboard domainLeaderboard = GroupLeaderboard.builder()
+                .groupId(groupId)
+                .groupName("My Group")
+                .build();
+        WebLeaderboardResponse webResponse = WebLeaderboardResponse.builder()
+                .groupId(groupId)
+                .groupName("My Group")
+                .build();
+
+        when(getGroupLeaderboardUseCase.getGroupLeaderboard(groupId, OWNER_ID)).thenReturn(domainLeaderboard);
+        when(leaderboardConverter.toWebResponse(domainLeaderboard)).thenReturn(webResponse);
+
+        ResponseEntity<WebLeaderboardResponse> response = controller.getGroupLeaderboard(groupId);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(webResponse));
+
+        verify(getGroupLeaderboardUseCase).getGroupLeaderboard(groupId, OWNER_ID);
+        verify(leaderboardConverter).toWebResponse(domainLeaderboard);
     }
 }

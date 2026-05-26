@@ -1,11 +1,15 @@
 package com.topleague.predict.infrastructure.in.controller;
 
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
+import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
 import com.topleague.predict.domain.model.Group;
+import com.topleague.predict.domain.model.GroupLeaderboard;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
 import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
+import com.topleague.predict.infrastructure.in.mapper.LeaderboardWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
+import com.topleague.predict.infrastructure.in.model.WebLeaderboardResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,11 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class GroupController implements GroupsApi {
 
     private final CreateGroupUseCase createGroupUseCase;
+    private final GetGroupLeaderboardUseCase getGroupLeaderboardUseCase;
     private final GroupWebConverter groupWebConverter;
+    private final LeaderboardWebConverter leaderboardWebConverter;
 
-    public GroupController(CreateGroupUseCase createGroupUseCase, GroupWebConverter groupWebConverter) {
+    public GroupController(CreateGroupUseCase createGroupUseCase,
+                           GetGroupLeaderboardUseCase getGroupLeaderboardUseCase,
+                           GroupWebConverter groupWebConverter,
+                           LeaderboardWebConverter leaderboardWebConverter) {
         this.createGroupUseCase = createGroupUseCase;
+        this.getGroupLeaderboardUseCase = getGroupLeaderboardUseCase;
         this.groupWebConverter = groupWebConverter;
+        this.leaderboardWebConverter = leaderboardWebConverter;
     }
 
     @Override
@@ -32,5 +43,14 @@ public class GroupController implements GroupsApi {
         Group createdGroup = createGroupUseCase.createGroup(groupToCreate, principal.getUsername());
 
         return ResponseEntity.status(201).body(groupWebConverter.toWebResponse(createdGroup));
+    }
+
+    @Override
+    public ResponseEntity<WebLeaderboardResponse> getGroupLeaderboard(Integer groupId) {
+        AppUserDetails principal = (AppUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        GroupLeaderboard leaderboard = getGroupLeaderboardUseCase.getGroupLeaderboard(groupId, principal.getId());
+
+        return ResponseEntity.ok(leaderboardWebConverter.toWebResponse(leaderboard));
     }
 }
