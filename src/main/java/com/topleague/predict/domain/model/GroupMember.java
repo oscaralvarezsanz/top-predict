@@ -12,4 +12,6 @@ public class GroupMember {
     private final String alias;
     @Builder.Default
     private final Integer totalPoints = 0;
+    @Builder.Default
+    private final Integer rank = null;
 }
