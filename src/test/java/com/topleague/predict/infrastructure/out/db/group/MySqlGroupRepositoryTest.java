@@ -80,4 +80,27 @@ class MySqlGroupRepositoryTest {
         verify(jpaRepository).findByInviteCode(code);
         verify(converter).toDomain(entity);
     }
+
+    @Test
+    void getGroupsByUserIdShouldDelegateToJpaRepositoryAndConvertResult() {
+        Integer userId = 42;
+        GroupEntity entity1 = GroupEntity.builder().id(1).name("Group 1").build();
+        GroupEntity entity2 = GroupEntity.builder().id(2).name("Group 2").build();
+        Group domainGroup1 = Group.builder().id(1).name("Group 1").build();
+        Group domainGroup2 = Group.builder().id(2).name("Group 2").build();
+
+        when(jpaRepository.findByUserId(userId)).thenReturn(java.util.Arrays.asList(entity1, entity2));
+        when(converter.toDomain(entity1)).thenReturn(domainGroup1);
+        when(converter.toDomain(entity2)).thenReturn(domainGroup2);
+
+        java.util.List<Group> result = sut.getGroupsByUserId(userId);
+
+        assertThat(result.size(), is(2));
+        assertThat(result.get(0), is(domainGroup1));
+        assertThat(result.get(1), is(domainGroup2));
+
+        verify(jpaRepository).findByUserId(userId);
+        verify(converter).toDomain(entity1);
+        verify(converter).toDomain(entity2);
+    }
 }

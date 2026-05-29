@@ -3,15 +3,17 @@ package com.topleague.predict.infrastructure.out.db.group;
 import com.topleague.predict.application.port.out.group.GroupCreateRepository;
 import com.topleague.predict.application.port.out.group.GroupGetByIdRepository;
 import com.topleague.predict.application.port.out.group.GroupGetByInviteCodeRepository;
+import com.topleague.predict.application.port.out.group.GroupGetByUserIdRepository;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.infrastructure.out.db.group.mapper.GroupEntityConverter;
 import com.topleague.predict.infrastructure.out.db.model.GroupEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MySqlGroupRepository implements GroupCreateRepository, GroupGetByIdRepository, GroupGetByInviteCodeRepository {
+public class MySqlGroupRepository implements GroupCreateRepository, GroupGetByIdRepository, GroupGetByInviteCodeRepository, GroupGetByUserIdRepository {
 
     private final JpaGroupRepository jpaRepository;
     private final GroupEntityConverter entityConverter;
@@ -44,5 +46,12 @@ public class MySqlGroupRepository implements GroupCreateRepository, GroupGetById
     public Optional<Group> getGroupByInviteCode(String inviteCode) {
         return jpaRepository.findByInviteCode(inviteCode)
                 .map(entityConverter::toDomain);
+    }
+
+    @Override
+    public List<Group> getGroupsByUserId(Integer userId) {
+        return jpaRepository.findByUserId(userId).stream()
+                .map(entityConverter::toDomain)
+                .toList();
     }
 }
