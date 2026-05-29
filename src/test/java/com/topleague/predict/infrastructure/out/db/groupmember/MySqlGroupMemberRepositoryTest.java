@@ -5,15 +5,19 @@ import com.topleague.predict.infrastructure.out.db.groupmember.mapper.GroupMembe
 import com.topleague.predict.infrastructure.out.db.model.GroupMemberEntity;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-class MySqlGroupMemberCreateRepositoryTest {
+class MySqlGroupMemberRepositoryTest {
 
     private final JpaGroupMemberRepository jpaRepository = mock(JpaGroupMemberRepository.class);
     private final GroupMemberEntityConverter converter = mock(GroupMemberEntityConverter.class);
-    private final MySqlGroupMemberCreateRepository sut = new MySqlGroupMemberCreateRepository(jpaRepository, converter);
+    private final MySqlGroupMemberRepository sut = new MySqlGroupMemberRepository(jpaRepository, converter);
 
     @Test
     void createGroupMemberShouldDelegateToJpaRepositoryAndReturnDomainGroupMember() {
@@ -31,5 +35,25 @@ class MySqlGroupMemberCreateRepositoryTest {
         verify(converter).toEntity(domainMember);
         verify(jpaRepository).save(entity);
         verify(converter).toDomain(entity);
+    }
+
+    @Test
+    void getGroupMembersByGroupIdShouldDelegateToJpaRepositoryAndConvertList() {
+        GroupMemberEntity entity = GroupMemberEntity.builder().id(1).groupId(10).alias("User").build();
+        GroupMember domainMember = GroupMember.builder().id(1).groupId(10).alias("User").build();
+
+        List<GroupMemberEntity> entities = Arrays.asList(entity);
+        List<GroupMember> domainMembers = Arrays.asList(domainMember);
+
+        when(jpaRepository.findByGroupId(10)).thenReturn(entities);
+        when(converter.toDomainList(entities)).thenReturn(domainMembers);
+
+        List<GroupMember> result = sut.getGroupMembersByGroupId(10);
+
+        assertThat(result, hasSize(1));
+        assertThat(result.get(0), is(domainMember));
+
+        verify(jpaRepository).findByGroupId(10);
+        verify(converter).toDomainList(entities);
     }
 }
