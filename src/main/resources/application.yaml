@@ -1,6 +1,15 @@
 spring:
   application:
     name: top-predict
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:toppredict}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DATASOURCE_USER:root}
+    password: ${DATASOURCE_PASS:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
 
 server:
   port: 8081
@@ -11,3 +20,10 @@ security:
   jwt:
     secret-key: ${JWT_SECRET_KEY:3cfa76ef14937c1c0ea519f8fc0ed45a807a2c4e2a8d3b8f1c8e7a6d5c4b3a2f}
     expiration-time: 86400000 # 1 day in ms
+
+topleague:
+  client:
+    game:
+      url: ${TOP_LEAGUE_API_URL:http://localhost:8080/api}
+      connect-timeout-ms: 3000
+      read-timeout-ms: 3000
