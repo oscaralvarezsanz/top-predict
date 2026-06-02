@@ -3,18 +3,24 @@ package com.topleague.predict.infrastructure.in.controller;
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
 import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
 import com.topleague.predict.application.port.in.group.JoinGroupUseCase;
+import com.topleague.predict.application.port.in.prediction.GetGroupGamePredictionsUseCase;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.domain.model.GroupLeaderboard;
+import com.topleague.predict.domain.model.GroupMemberPrediction;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
+import com.topleague.predict.infrastructure.in.mapper.GroupMemberPredictionWebConverter;
 import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
 import com.topleague.predict.infrastructure.in.mapper.LeaderboardWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupJoinRequest;
+import com.topleague.predict.infrastructure.in.model.WebGroupMemberPrediction;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
 import com.topleague.predict.infrastructure.in.model.WebLeaderboardResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class GroupController implements GroupsApi {
@@ -22,19 +28,25 @@ public class GroupController implements GroupsApi {
     private final CreateGroupUseCase createGroupUseCase;
     private final GetGroupLeaderboardUseCase getGroupLeaderboardUseCase;
     private final JoinGroupUseCase joinGroupUseCase;
+    private final GetGroupGamePredictionsUseCase getGroupGamePredictionsUseCase;
     private final GroupWebConverter groupWebConverter;
     private final LeaderboardWebConverter leaderboardWebConverter;
+    private final GroupMemberPredictionWebConverter groupMemberPredictionWebConverter;
 
     public GroupController(CreateGroupUseCase createGroupUseCase,
                            GetGroupLeaderboardUseCase getGroupLeaderboardUseCase,
                            JoinGroupUseCase joinGroupUseCase,
+                           GetGroupGamePredictionsUseCase getGroupGamePredictionsUseCase,
                            GroupWebConverter groupWebConverter,
-                           LeaderboardWebConverter leaderboardWebConverter) {
+                           LeaderboardWebConverter leaderboardWebConverter,
+                           GroupMemberPredictionWebConverter groupMemberPredictionWebConverter) {
         this.createGroupUseCase = createGroupUseCase;
         this.getGroupLeaderboardUseCase = getGroupLeaderboardUseCase;
         this.joinGroupUseCase = joinGroupUseCase;
+        this.getGroupGamePredictionsUseCase = getGroupGamePredictionsUseCase;
         this.groupWebConverter = groupWebConverter;
         this.leaderboardWebConverter = leaderboardWebConverter;
+        this.groupMemberPredictionWebConverter = groupMemberPredictionWebConverter;
     }
 
     @Override
@@ -70,5 +82,19 @@ public class GroupController implements GroupsApi {
         );
 
         return ResponseEntity.ok(groupWebConverter.toWebResponse(joinedGroup));
+    }
+
+    @Override
+    public ResponseEntity<List<WebGroupMemberPrediction>> getGroupGamePredictions(Integer groupId, Integer gameId) {
+        AppUserDetails principal = (AppUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        List<GroupMemberPrediction> predictions = getGroupGamePredictionsUseCase
+                .getGroupGamePredictions(groupId, gameId, principal.getId());
+
+        List<WebGroupMemberPrediction> response = predictions.stream()
+                .map(groupMemberPredictionWebConverter::toWebResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -3,14 +3,17 @@ package com.topleague.predict.infrastructure.in.controller;
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
 import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
 import com.topleague.predict.application.port.in.group.JoinGroupUseCase;
+import com.topleague.predict.application.port.in.prediction.GetGroupGamePredictionsUseCase;
 import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.domain.model.GroupLeaderboard;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
+import com.topleague.predict.infrastructure.in.mapper.GroupMemberPredictionWebConverter;
 import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
 import com.topleague.predict.infrastructure.in.mapper.LeaderboardWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupJoinRequest;
+import com.topleague.predict.infrastructure.in.model.WebGroupMemberPrediction;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
 import com.topleague.predict.infrastructure.in.model.WebLeaderboardResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +23,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -33,9 +39,14 @@ class GroupControllerTest {
     private final CreateGroupUseCase createUseCase = mock(CreateGroupUseCase.class);
     private final GetGroupLeaderboardUseCase getGroupLeaderboardUseCase = mock(GetGroupLeaderboardUseCase.class);
     private final JoinGroupUseCase joinGroupUseCase = mock(JoinGroupUseCase.class);
+    private final GetGroupGamePredictionsUseCase getGroupGamePredictionsUseCase = mock(GetGroupGamePredictionsUseCase.class);
     private final GroupWebConverter converter = mock(GroupWebConverter.class);
     private final LeaderboardWebConverter leaderboardConverter = mock(LeaderboardWebConverter.class);
-    private final GroupController controller = new GroupController(createUseCase, getGroupLeaderboardUseCase, joinGroupUseCase, converter, leaderboardConverter);
+    private final GroupMemberPredictionWebConverter groupMemberPredictionConverter = mock(GroupMemberPredictionWebConverter.class);
+    private final GroupController controller = new GroupController(
+            createUseCase, getGroupLeaderboardUseCase, joinGroupUseCase, getGroupGamePredictionsUseCase,
+            converter, leaderboardConverter, groupMemberPredictionConverter
+    );
 
     @BeforeEach
     void setup() {
@@ -113,5 +124,31 @@ class GroupControllerTest {
 
         verify(joinGroupUseCase).joinGroup(code, OWNER_ID, USERNAME);
         verify(converter).toWebResponse(domainGroup);
+    }
+
+    @Test
+    void getGroupGamePredictionsShouldReturnPredictionsWith200Ok() {
+        Integer groupId = 10;
+        Integer gameId = 20;
+
+        com.topleague.predict.domain.model.GroupMemberPrediction pred1 = com.topleague.predict.domain.model.GroupMemberPrediction.builder().userId(OWNER_ID).alias("caller").predictedHomeScore(2).predictedAwayScore(1).build();
+        com.topleague.predict.domain.model.GroupMemberPrediction pred2 = com.topleague.predict.domain.model.GroupMemberPrediction.builder().userId(99).alias("other").predictedHomeScore(null).predictedAwayScore(null).build();
+        List<com.topleague.predict.domain.model.GroupMemberPrediction> predictions = Arrays.asList(pred1, pred2);
+
+        WebGroupMemberPrediction response1 = WebGroupMemberPrediction.builder().userId(OWNER_ID).alias("caller").predictedHomeScore(2).predictedAwayScore(1).build();
+        WebGroupMemberPrediction response2 = WebGroupMemberPrediction.builder().userId(99).alias("other").predictedHomeScore(null).predictedAwayScore(null).build();
+
+        when(getGroupGamePredictionsUseCase.getGroupGamePredictions(groupId, gameId, OWNER_ID)).thenReturn(predictions);
+        when(groupMemberPredictionConverter.toWebResponse(pred1)).thenReturn(response1);
+        when(groupMemberPredictionConverter.toWebResponse(pred2)).thenReturn(response2);
+
+        ResponseEntity<List<WebGroupMemberPrediction>> response = controller.getGroupGamePredictions(groupId, gameId);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(Arrays.asList(response1, response2)));
+
+        verify(getGroupGamePredictionsUseCase).getGroupGamePredictions(groupId, gameId, OWNER_ID);
+        verify(groupMemberPredictionConverter).toWebResponse(pred1);
+        verify(groupMemberPredictionConverter).toWebResponse(pred2);
     }
 }
