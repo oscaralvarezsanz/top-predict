@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface JpaPredictionRepository extends JpaRepository<PredictionEntity, Integer> {
     Optional<PredictionEntity> findByGroupIdAndUserIdAndGameId(Integer groupId, Integer userId, Integer gameId);
     List<PredictionEntity> findByGroupIdAndUserId(Integer groupId, Integer userId);
+    List<PredictionEntity> findByGroupIdAndGameId(Integer groupId, Integer gameId);
 }
