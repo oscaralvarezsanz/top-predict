@@ -1,11 +1,15 @@
 package com.topleague.predict.infrastructure.in.controller;
 
 import com.topleague.predict.application.port.in.group.GetMyGroupsUseCase;
+import com.topleague.predict.application.port.in.prediction.GetMyGroupPredictionsUseCase;
 import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Group;
+import com.topleague.predict.domain.model.Prediction;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
 import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
+import com.topleague.predict.infrastructure.in.mapper.PredictionWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
+import com.topleague.predict.infrastructure.in.model.WebPredictionResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +31,10 @@ class MeControllerTest {
     private static final String USERNAME = "john_doe";
 
     private final GetMyGroupsUseCase getMyGroupsUseCase = mock(GetMyGroupsUseCase.class);
+    private final GetMyGroupPredictionsUseCase getMyGroupPredictionsUseCase = mock(GetMyGroupPredictionsUseCase.class);
     private final GroupWebConverter groupWebConverter = mock(GroupWebConverter.class);
-    private final MeController controller = new MeController(getMyGroupsUseCase, groupWebConverter);
+    private final PredictionWebConverter predictionWebConverter = mock(PredictionWebConverter.class);
+    private final MeController controller = new MeController(getMyGroupsUseCase, getMyGroupPredictionsUseCase, groupWebConverter, predictionWebConverter);
 
     @BeforeEach
     void setup() {
@@ -63,5 +69,29 @@ class MeControllerTest {
         verify(getMyGroupsUseCase).getMyGroups(USER_ID);
         verify(groupWebConverter).toWebResponse(group1);
         verify(groupWebConverter).toWebResponse(group2);
+    }
+
+    @Test
+    void getMyGroupPredictionsShouldReturnPredictionsWith200Ok() {
+        Integer groupId = 10;
+        Prediction pred1 = Prediction.builder().id(1).groupId(groupId).userId(USER_ID).predictedHomeScore(2).predictedAwayScore(1).build();
+        Prediction pred2 = Prediction.builder().id(2).groupId(groupId).userId(USER_ID).predictedHomeScore(1).predictedAwayScore(1).build();
+        List<Prediction> domainPredictions = Arrays.asList(pred1, pred2);
+
+        WebPredictionResponse response1 = WebPredictionResponse.builder().id(1).groupId(groupId).userId(USER_ID).predictedHomeScore(2).predictedAwayScore(1).build();
+        WebPredictionResponse response2 = WebPredictionResponse.builder().id(2).groupId(groupId).userId(USER_ID).predictedHomeScore(1).predictedAwayScore(1).build();
+
+        when(getMyGroupPredictionsUseCase.getMyGroupPredictions(groupId, USER_ID)).thenReturn(domainPredictions);
+        when(predictionWebConverter.toWebResponse(pred1)).thenReturn(response1);
+        when(predictionWebConverter.toWebResponse(pred2)).thenReturn(response2);
+
+        ResponseEntity<List<WebPredictionResponse>> response = controller.getMyGroupPredictions(groupId);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(Arrays.asList(response1, response2)));
+
+        verify(getMyGroupPredictionsUseCase).getMyGroupPredictions(groupId, USER_ID);
+        verify(predictionWebConverter).toWebResponse(pred1);
+        verify(predictionWebConverter).toWebResponse(pred2);
     }
 }
