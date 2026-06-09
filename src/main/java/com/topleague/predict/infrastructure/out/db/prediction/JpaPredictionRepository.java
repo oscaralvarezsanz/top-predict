@@ -12,4 +12,5 @@ public interface JpaPredictionRepository extends JpaRepository<PredictionEntity,
     Optional<PredictionEntity> findByGroupIdAndUserIdAndGameId(Integer groupId, Integer userId, Integer gameId);
     List<PredictionEntity> findByGroupIdAndUserId(Integer groupId, Integer userId);
     List<PredictionEntity> findByGroupIdAndGameId(Integer groupId, Integer gameId);
+    List<PredictionEntity> findByGroupIdAndGameIdIn(Integer groupId, List<Integer> gameIds);
 }

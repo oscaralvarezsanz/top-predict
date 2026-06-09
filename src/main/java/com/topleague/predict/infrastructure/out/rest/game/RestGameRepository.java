@@ -1,14 +1,16 @@
 package com.topleague.predict.infrastructure.out.rest.game;
 
 import com.topleague.predict.application.port.out.game.GameGetByIdRepository;
+import com.topleague.predict.application.port.out.game.GameGetByLeagueAndMatchdayRepository;
 import com.topleague.predict.domain.model.Game;
 import feign.FeignException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
-public class RestGameRepository implements GameGetByIdRepository {
+public class RestGameRepository implements GameGetByIdRepository, GameGetByLeagueAndMatchdayRepository {
 
     private final GameFeignClient gameFeignClient;
 
@@ -28,6 +30,19 @@ public class RestGameRepository implements GameGetByIdRepository {
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<Game> getGamesByLeagueAndMatchday(Integer leagueId, Integer matchday) {
+        try {
+            List<WebGameResponse> response = gameFeignClient.getGamesByLeagueAndMatchday(leagueId, matchday);
+            if (response == null) {
+                return List.of();
+            }
+            return response.stream().map(this::mapToDomain).toList();
+        } catch (Exception e) {
+            return List.of();
         }
     }
 
