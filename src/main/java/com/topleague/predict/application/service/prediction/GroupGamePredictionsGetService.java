@@ -52,11 +52,12 @@ public class GroupGamePredictionsGetService implements GetGroupGamePredictionsUs
                 
         boolean isResolved = game.getHomeScore() != null && game.getAwayScore() != null;
 
-        return members.stream().map(member -> hideUnresolvedPredictionScore(userId, predictions, isResolved, member))
+        return members.stream().map(member -> hideUnresolvedPredictionScore(gameId, userId, predictions, isResolved, member))
                 .toList();
     }
 
-    private GroupMemberPrediction hideUnresolvedPredictionScore(Integer userId, 
+    private GroupMemberPrediction hideUnresolvedPredictionScore(Integer gameId,
+                                                                Integer userId, 
                                                                 List<Prediction> predictions,
                                                                 boolean isResolved, 
                                                                 GroupMember member) {
@@ -67,11 +68,12 @@ public class GroupGamePredictionsGetService implements GetGroupGamePredictionsUs
         boolean hideScores = !isResolved && !member.getUserId().equals(userId);
 
         return GroupMemberPrediction.builder()
+                .gameId(gameId)
                 .userId(member.getUserId())
                 .alias(member.getAlias())
                 .predictedHomeScore(!hideScores && predictionOpt.isPresent() ? predictionOpt.get().getPredictedHomeScore() : null)
                 .predictedAwayScore(!hideScores && predictionOpt.isPresent() ? predictionOpt.get().getPredictedAwayScore() : null)
-                .pointsEarned(!hideScores && predictionOpt.isPresent() ? predictionOpt.get().getPointsEarned() : 0)
+                .pointsEarned(!hideScores && predictionOpt.isPresent() ? predictionOpt.get().getPointsEarned() : null)
                 .build();
     }
 }

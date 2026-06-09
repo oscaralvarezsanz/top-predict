@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder(toBuilder = true)
 public class GroupMemberPrediction {
+    private final Integer gameId;
     private final Integer userId;
     private final String alias;
     private final Integer predictedHomeScore;
