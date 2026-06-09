@@ -4,6 +4,7 @@ import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
 import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
 import com.topleague.predict.application.port.in.group.JoinGroupUseCase;
 import com.topleague.predict.application.port.in.prediction.GetGroupGamePredictionsUseCase;
+import com.topleague.predict.application.port.in.prediction.GetGroupMatchdayPredictionsUseCase;
 import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.domain.model.GroupLeaderboard;
@@ -16,6 +17,7 @@ import com.topleague.predict.infrastructure.in.model.WebGroupJoinRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupMemberPrediction;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
 import com.topleague.predict.infrastructure.in.model.WebLeaderboardResponse;
+import com.topleague.predict.infrastructure.in.model.WebMatchdayPredictionResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,11 +42,12 @@ class GroupControllerTest {
     private final GetGroupLeaderboardUseCase getGroupLeaderboardUseCase = mock(GetGroupLeaderboardUseCase.class);
     private final JoinGroupUseCase joinGroupUseCase = mock(JoinGroupUseCase.class);
     private final GetGroupGamePredictionsUseCase getGroupGamePredictionsUseCase = mock(GetGroupGamePredictionsUseCase.class);
+    private final GetGroupMatchdayPredictionsUseCase getGroupMatchdayPredictionsUseCase = mock(GetGroupMatchdayPredictionsUseCase.class);
     private final GroupWebConverter converter = mock(GroupWebConverter.class);
     private final LeaderboardWebConverter leaderboardConverter = mock(LeaderboardWebConverter.class);
     private final GroupMemberPredictionWebConverter groupMemberPredictionConverter = mock(GroupMemberPredictionWebConverter.class);
     private final GroupController controller = new GroupController(
-            createUseCase, getGroupLeaderboardUseCase, joinGroupUseCase, getGroupGamePredictionsUseCase,
+            createUseCase, getGroupLeaderboardUseCase, joinGroupUseCase, getGroupGamePredictionsUseCase, getGroupMatchdayPredictionsUseCase,
             converter, leaderboardConverter, groupMemberPredictionConverter
     );
 
@@ -150,5 +153,31 @@ class GroupControllerTest {
         verify(getGroupGamePredictionsUseCase).getGroupGamePredictions(groupId, gameId, OWNER_ID);
         verify(groupMemberPredictionConverter).toWebResponse(pred1);
         verify(groupMemberPredictionConverter).toWebResponse(pred2);
+    }
+
+    @Test
+    void getGroupMatchdayPredictionsShouldReturnPredictionsWith200Ok() {
+        Integer groupId = 10;
+        Integer matchday = 2;
+
+        com.topleague.predict.domain.model.GroupMemberPrediction pred1 = com.topleague.predict.domain.model.GroupMemberPrediction.builder().gameId(20).userId(OWNER_ID).alias("caller").predictedHomeScore(2).predictedAwayScore(1).build();
+        com.topleague.predict.domain.model.GroupMemberPrediction pred2 = com.topleague.predict.domain.model.GroupMemberPrediction.builder().gameId(20).userId(99).alias("other").predictedHomeScore(null).predictedAwayScore(null).build();
+        List<com.topleague.predict.domain.model.GroupMemberPrediction> predictions = Arrays.asList(pred1, pred2);
+
+        WebMatchdayPredictionResponse response1 = WebMatchdayPredictionResponse.builder().gameId(20).userId(OWNER_ID).alias("caller").predictedHomeScore(2).predictedAwayScore(1).build();
+        WebMatchdayPredictionResponse response2 = WebMatchdayPredictionResponse.builder().gameId(20).userId(99).alias("other").predictedHomeScore(null).predictedAwayScore(null).build();
+
+        when(getGroupMatchdayPredictionsUseCase.getGroupMatchdayPredictions(groupId, matchday, OWNER_ID)).thenReturn(predictions);
+        when(groupMemberPredictionConverter.toWebMatchdayResponse(pred1)).thenReturn(response1);
+        when(groupMemberPredictionConverter.toWebMatchdayResponse(pred2)).thenReturn(response2);
+
+        ResponseEntity<List<WebMatchdayPredictionResponse>> response = controller.getGroupMatchdayPredictions(groupId, matchday);
+
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        assertThat(response.getBody(), is(Arrays.asList(response1, response2)));
+
+        verify(getGroupMatchdayPredictionsUseCase).getGroupMatchdayPredictions(groupId, matchday, OWNER_ID);
+        verify(groupMemberPredictionConverter).toWebMatchdayResponse(pred1);
+        verify(groupMemberPredictionConverter).toWebMatchdayResponse(pred2);
     }
 }
