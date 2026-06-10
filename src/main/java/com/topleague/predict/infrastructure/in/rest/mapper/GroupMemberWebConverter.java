@@ -1,4 +1,4 @@
-package com.topleague.predict.infrastructure.in.mapper;
+package com.topleague.predict.infrastructure.in.rest.mapper;
 
 import com.topleague.predict.domain.model.GroupMember;
 import com.topleague.predict.infrastructure.in.model.WebGroupMemberStanding;

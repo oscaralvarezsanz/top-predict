@@ -1,10 +1,11 @@
-package com.topleague.predict.infrastructure.in.controller;
+package com.topleague.predict.infrastructure.in.rest.controller;
 
 import com.topleague.predict.application.port.in.prediction.SubmitPredictionUseCase;
 import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Prediction;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
-import com.topleague.predict.infrastructure.in.mapper.PredictionWebConverter;
+import com.topleague.predict.infrastructure.in.rest.controller.PredictionController;
+import com.topleague.predict.infrastructure.in.rest.mapper.PredictionWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebPredictionResponse;
 import com.topleague.predict.infrastructure.in.model.WebPredictionSubmitRequest;
 import org.junit.jupiter.api.AfterEach;

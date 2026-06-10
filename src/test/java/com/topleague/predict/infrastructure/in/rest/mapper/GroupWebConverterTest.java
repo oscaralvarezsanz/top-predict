@@ -1,8 +1,9 @@
-package com.topleague.predict.infrastructure.in.mapper;
+package com.topleague.predict.infrastructure.in.rest.mapper;
 
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
+import com.topleague.predict.infrastructure.in.rest.mapper.GroupWebConverter;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

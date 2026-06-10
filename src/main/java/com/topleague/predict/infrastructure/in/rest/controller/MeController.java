@@ -1,14 +1,15 @@
-package com.topleague.predict.infrastructure.in.controller;
+package com.topleague.predict.infrastructure.in.rest.controller;
 
 import com.topleague.predict.application.port.in.group.GetMyGroupsUseCase;
 import com.topleague.predict.application.port.in.prediction.GetMyGroupPredictionsUseCase;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.domain.model.Prediction;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
-import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
-import com.topleague.predict.infrastructure.in.mapper.PredictionWebConverter;
+import com.topleague.predict.infrastructure.in.rest.mapper.GroupWebConverter;
+import com.topleague.predict.infrastructure.in.rest.mapper.PredictionWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupResponse;
 import com.topleague.predict.infrastructure.in.model.WebPredictionResponse;
+import com.topleague.predict.infrastructure.in.controller.MeApi;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;

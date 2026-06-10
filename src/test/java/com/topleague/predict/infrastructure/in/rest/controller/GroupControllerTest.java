@@ -1,4 +1,4 @@
-package com.topleague.predict.infrastructure.in.controller;
+package com.topleague.predict.infrastructure.in.rest.controller;
 
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
 import com.topleague.predict.application.port.in.group.GetGroupLeaderboardUseCase;
@@ -9,9 +9,10 @@ import com.topleague.predict.domain.model.AppUser;
 import com.topleague.predict.domain.model.Group;
 import com.topleague.predict.domain.model.GroupLeaderboard;
 import com.topleague.predict.infrastructure.config.security.AppUserDetails;
-import com.topleague.predict.infrastructure.in.mapper.GroupMemberPredictionWebConverter;
-import com.topleague.predict.infrastructure.in.mapper.GroupWebConverter;
-import com.topleague.predict.infrastructure.in.mapper.LeaderboardWebConverter;
+import com.topleague.predict.infrastructure.in.rest.controller.GroupController;
+import com.topleague.predict.infrastructure.in.rest.mapper.GroupMemberPredictionWebConverter;
+import com.topleague.predict.infrastructure.in.rest.mapper.GroupWebConverter;
+import com.topleague.predict.infrastructure.in.rest.mapper.LeaderboardWebConverter;
 import com.topleague.predict.infrastructure.in.model.WebGroupCreateRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupJoinRequest;
 import com.topleague.predict.infrastructure.in.model.WebGroupMemberPrediction;
