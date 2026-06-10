@@ -1,5 +1,6 @@
 package com.topleague.predict.infrastructure.out.db.prediction;
 
+import com.topleague.predict.application.port.out.prediction.PredictionGetByGameRepository;
 import com.topleague.predict.application.port.out.prediction.PredictionGetByGroupUserAndGameRepository;
 import com.topleague.predict.application.port.out.prediction.PredictionGetByGroupAndUserRepository;
 import com.topleague.predict.application.port.out.prediction.PredictionGetByGroupAndGameRepository;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public class MySqlPredictionRepository implements PredictionSaveRepository, PredictionGetByGroupUserAndGameRepository, PredictionGetByGroupAndUserRepository, PredictionGetByGroupAndGameRepository, PredictionGetByGroupAndGamesRepository {
+public class MySqlPredictionRepository implements PredictionSaveRepository, PredictionGetByGroupUserAndGameRepository, PredictionGetByGroupAndUserRepository, PredictionGetByGroupAndGameRepository, PredictionGetByGroupAndGamesRepository, PredictionGetByGameRepository {
 
     private final JpaPredictionRepository jpaRepository;
     private final PredictionEntityConverter entityConverter;
@@ -55,6 +56,13 @@ public class MySqlPredictionRepository implements PredictionSaveRepository, Pred
     @Override
     public List<Prediction> getPredictionsByGroupAndGames(Integer groupId, List<Integer> gameIds) {
         return jpaRepository.findByGroupIdAndGameIdIn(groupId, gameIds).stream()
+                .map(entityConverter::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Prediction> getPredictionsByGame(Integer gameId) {
+        return jpaRepository.findByGameId(gameId).stream()
                 .map(entityConverter::toDomain)
                 .toList();
     }

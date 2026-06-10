@@ -1,9 +1,9 @@
 package com.topleague.predict.domain.model;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
+@Value
 @Builder(toBuilder = true)
 public class Result {
     private final Integer gameId;
