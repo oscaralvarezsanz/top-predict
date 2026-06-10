@@ -2,7 +2,7 @@ package com.topleague.predict.application.service.group;
 
 import com.topleague.predict.application.port.in.group.CreateGroupUseCase;
 import com.topleague.predict.application.port.out.group.GroupCreateRepository;
-import com.topleague.predict.application.port.out.groupmember.GroupMemberCreateRepository;
+import com.topleague.predict.application.port.out.groupmember.GroupMemberSaveRepository;
 import com.topleague.predict.domain.exception.GroupErrorCode;
 import com.topleague.predict.domain.exception.GroupException;
 import com.topleague.predict.domain.model.Group;
@@ -18,13 +18,13 @@ public class GroupCreateService implements CreateGroupUseCase {
 
     private static final String INVITE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private final GroupCreateRepository groupCreateRepository;
-    private final GroupMemberCreateRepository groupMemberCreateRepository;
+    private final GroupMemberSaveRepository groupMemberSaveRepository;
     private final SecureRandom random = new SecureRandom();
 
     public GroupCreateService(GroupCreateRepository groupCreateRepository,
-                              GroupMemberCreateRepository groupMemberCreateRepository) {
+                              GroupMemberSaveRepository groupMemberSaveRepository) {
         this.groupCreateRepository = groupCreateRepository;
-        this.groupMemberCreateRepository = groupMemberCreateRepository;
+        this.groupMemberSaveRepository = groupMemberSaveRepository;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class GroupCreateService implements CreateGroupUseCase {
                 .totalPoints(0)
                 .build();
                 
-        groupMemberCreateRepository.createGroupMember(ownerMember);
+        groupMemberSaveRepository.saveGroupMember(ownerMember);
 
         return savedGroup;
     }

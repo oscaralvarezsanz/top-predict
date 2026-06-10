@@ -1,7 +1,7 @@
 package com.topleague.predict.application.service.group;
 
 import com.topleague.predict.application.port.out.group.GroupCreateRepository;
-import com.topleague.predict.application.port.out.groupmember.GroupMemberCreateRepository;
+import com.topleague.predict.application.port.out.groupmember.GroupMemberSaveRepository;
 import com.topleague.predict.domain.exception.GroupErrorCode;
 import com.topleague.predict.domain.exception.GroupException;
 import com.topleague.predict.domain.model.Group;
@@ -17,8 +17,8 @@ import static org.mockito.Mockito.*;
 class GroupCreateServiceTest {
 
     private final GroupCreateRepository groupCreateRepository = mock(GroupCreateRepository.class);
-    private final GroupMemberCreateRepository groupMemberCreateRepository = mock(GroupMemberCreateRepository.class);
-    private final GroupCreateService service = new GroupCreateService(groupCreateRepository, groupMemberCreateRepository);
+    private final GroupMemberSaveRepository groupMemberSaveRepository = mock(GroupMemberSaveRepository.class);
+    private final GroupCreateService service = new GroupCreateService(groupCreateRepository, groupMemberSaveRepository);
 
     @Test
     void shouldCreateGroupAndAutoRegisterOwner() {
@@ -35,7 +35,7 @@ class GroupCreateServiceTest {
 
         when(groupCreateRepository.existsByInviteCode(anyString())).thenReturn(false);
         when(groupCreateRepository.createGroup(any(Group.class))).thenReturn(savedGroup);
-        when(groupMemberCreateRepository.createGroupMember(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(groupMemberSaveRepository.saveGroupMember(any(GroupMember.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Group result = service.createGroup(groupToCreate, "john_doe");
 
@@ -49,7 +49,7 @@ class GroupCreateServiceTest {
                 g.getCreatedAt() != null
         ));
 
-        verify(groupMemberCreateRepository).createGroupMember(argThat(member -> 
+        verify(groupMemberSaveRepository).saveGroupMember(argThat(member -> 
                 member.getGroupId().equals(1) &&
                 member.getUserId().equals(42) &&
                 member.getAlias().equals("john_doe") &&

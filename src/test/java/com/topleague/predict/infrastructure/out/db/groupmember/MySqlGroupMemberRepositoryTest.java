@@ -20,7 +20,7 @@ class MySqlGroupMemberRepositoryTest {
     private final MySqlGroupMemberRepository sut = new MySqlGroupMemberRepository(jpaRepository, converter);
 
     @Test
-    void createGroupMemberShouldDelegateToJpaRepositoryAndReturnDomainGroupMember() {
+    void saveGroupMemberShouldDelegateToJpaRepositoryAndReturnDomainGroupMember() {
         GroupMember domainMember = GroupMember.builder().alias("john_doe").build();
         GroupMemberEntity entity = GroupMemberEntity.builder().alias("john_doe").build();
         GroupMember savedDomainMember = GroupMember.builder().id(1).alias("john_doe").build();
@@ -29,7 +29,7 @@ class MySqlGroupMemberRepositoryTest {
         when(jpaRepository.save(entity)).thenReturn(entity);
         when(converter.toDomain(entity)).thenReturn(savedDomainMember);
 
-        GroupMember result = sut.createGroupMember(domainMember);
+        GroupMember result = sut.saveGroupMember(domainMember);
 
         assertThat(result, is(savedDomainMember));
         verify(converter).toEntity(domainMember);

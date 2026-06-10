@@ -2,7 +2,7 @@ package com.topleague.predict.application.service.group;
 
 import com.topleague.predict.application.port.in.group.JoinGroupUseCase;
 import com.topleague.predict.application.port.out.group.GroupGetByInviteCodeRepository;
-import com.topleague.predict.application.port.out.groupmember.GroupMemberCreateRepository;
+import com.topleague.predict.application.port.out.groupmember.GroupMemberSaveRepository;
 import com.topleague.predict.application.port.out.groupmember.GroupMemberGetByGroupIdRepository;
 import com.topleague.predict.domain.exception.GroupErrorCode;
 import com.topleague.predict.domain.exception.GroupException;
@@ -18,14 +18,14 @@ public class GroupJoinService implements JoinGroupUseCase {
 
     private final GroupGetByInviteCodeRepository groupGetByInviteCodeRepository;
     private final GroupMemberGetByGroupIdRepository groupMemberGetByGroupIdRepository;
-    private final GroupMemberCreateRepository groupMemberCreateRepository;
+    private final GroupMemberSaveRepository groupMemberSaveRepository;
 
     public GroupJoinService(GroupGetByInviteCodeRepository groupGetByInviteCodeRepository,
                             GroupMemberGetByGroupIdRepository groupMemberGetByGroupIdRepository,
-                            GroupMemberCreateRepository groupMemberCreateRepository) {
+                            GroupMemberSaveRepository groupMemberSaveRepository) {
         this.groupGetByInviteCodeRepository = groupGetByInviteCodeRepository;
         this.groupMemberGetByGroupIdRepository = groupMemberGetByGroupIdRepository;
-        this.groupMemberCreateRepository = groupMemberCreateRepository;
+        this.groupMemberSaveRepository = groupMemberSaveRepository;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class GroupJoinService implements JoinGroupUseCase {
                 .totalPoints(0)
                 .build();
 
-        groupMemberCreateRepository.createGroupMember(newMember);
+        groupMemberSaveRepository.saveGroupMember(newMember);
 
         return group;
     }

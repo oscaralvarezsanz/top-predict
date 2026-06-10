@@ -1,7 +1,7 @@
 package com.topleague.predict.application.service.group;
 
 import com.topleague.predict.application.port.out.group.GroupGetByInviteCodeRepository;
-import com.topleague.predict.application.port.out.groupmember.GroupMemberCreateRepository;
+import com.topleague.predict.application.port.out.groupmember.GroupMemberSaveRepository;
 import com.topleague.predict.application.port.out.groupmember.GroupMemberGetByGroupIdRepository;
 import com.topleague.predict.domain.exception.GroupErrorCode;
 import com.topleague.predict.domain.exception.GroupException;
@@ -25,11 +25,11 @@ class GroupJoinServiceTest {
 
     private final GroupGetByInviteCodeRepository groupGetByInviteCodeRepository = mock(GroupGetByInviteCodeRepository.class);
     private final GroupMemberGetByGroupIdRepository groupMemberGetByGroupIdRepository = mock(GroupMemberGetByGroupIdRepository.class);
-    private final GroupMemberCreateRepository groupMemberCreateRepository = mock(GroupMemberCreateRepository.class);
+    private final GroupMemberSaveRepository groupMemberSaveRepository = mock(GroupMemberSaveRepository.class);
     private final GroupJoinService service = new GroupJoinService(
             groupGetByInviteCodeRepository,
             groupMemberGetByGroupIdRepository,
-            groupMemberCreateRepository
+            groupMemberSaveRepository
     );
 
     @Test
@@ -39,14 +39,14 @@ class GroupJoinServiceTest {
 
         when(groupGetByInviteCodeRepository.getGroupByInviteCode(code)).thenReturn(Optional.of(group));
         when(groupMemberGetByGroupIdRepository.getGroupMembersByGroupId(10)).thenReturn(Collections.emptyList());
-        when(groupMemberCreateRepository.createGroupMember(any(GroupMember.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(groupMemberSaveRepository.saveGroupMember(any(GroupMember.class))).thenAnswer(inv -> inv.getArgument(0));
 
         Group result = service.joinGroup(code, 42, "user_alias");
 
         assertThat(result, is(group));
         verify(groupGetByInviteCodeRepository).getGroupByInviteCode(code);
         verify(groupMemberGetByGroupIdRepository).getGroupMembersByGroupId(10);
-        verify(groupMemberCreateRepository).createGroupMember(argThat(member ->
+        verify(groupMemberSaveRepository).saveGroupMember(argThat(member ->
                 member.getGroupId().equals(10) &&
                 member.getUserId().equals(42) &&
                 member.getAlias().equals("user_alias") &&
@@ -66,7 +66,7 @@ class GroupJoinServiceTest {
         assertThat(exception.getErrorCode(), is(GroupErrorCode.GROUP_NOT_FOUND));
         verify(groupGetByInviteCodeRepository).getGroupByInviteCode(code);
         verifyNoInteractions(groupMemberGetByGroupIdRepository);
-        verifyNoInteractions(groupMemberCreateRepository);
+        verifyNoInteractions(groupMemberSaveRepository);
     }
 
     @Test
@@ -85,6 +85,6 @@ class GroupJoinServiceTest {
         assertThat(exception.getErrorCode(), is(GroupMemberErrorCode.MEMBER_EXISTS));
         verify(groupGetByInviteCodeRepository).getGroupByInviteCode(code);
         verify(groupMemberGetByGroupIdRepository).getGroupMembersByGroupId(10);
-        verifyNoInteractions(groupMemberCreateRepository);
+        verifyNoInteractions(groupMemberSaveRepository);
     }
 }
