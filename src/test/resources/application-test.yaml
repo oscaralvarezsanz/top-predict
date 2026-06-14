@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  rabbitmq:
+    listener:
+      auto-startup: false
+
+security:
+  jwt:
+    secret-key: 3cfa76ef14937c1c0ea519f8fc0ed45a807a2c4e2a8d3b8f1c8e7a6d5c4b3a2f

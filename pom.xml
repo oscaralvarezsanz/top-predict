@@ -18,7 +18,7 @@
 		<openapi.generator.version>7.6.0</openapi.generator.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<springdoc.version>2.5.0</springdoc.version>
-		<jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
+
 		<jwt.version>0.12.6</jwt.version>
 		<lombok.version>1.18.36</lombok.version>
 		<spring-cloud.version>2025.0.2</spring-cloud.version>
@@ -63,11 +63,7 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.openapitools</groupId>
-			<artifactId>jackson-databind-nullable</artifactId>
-			<version>${jackson-databind-nullable.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -119,7 +115,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
-			<version>${rabbitmq.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -183,6 +178,7 @@
 								<modelPropertyNaming>camelCase</modelPropertyNaming>
 								<immutableModels>true</immutableModels>
 								<additionalModelTypeAnnotations>@lombok.Builder @lombok.Data @lombok.AllArgsConstructor</additionalModelTypeAnnotations>
+								<openApiNullable>false</openApiNullable>
 							</configOptions>
 							<typeMappings>
 								<typeMapping>DateTime=LocalDateTime</typeMapping>
